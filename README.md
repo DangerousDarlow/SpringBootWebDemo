@@ -6,4 +6,4 @@ This project has been created to demonstrate using spring boot to create an appl
  * Spring Boot version: 2
  * Dependency: Web
  
-![initializr](https://github.com/DangerousDarlow/SpringBootWebDemo/blob/master/screeshots/initializr.png)
+![initializr](https://github.com/DangerousDarlow/SpringBootWebDemo/blob/master/screenshots/initializr.png)
