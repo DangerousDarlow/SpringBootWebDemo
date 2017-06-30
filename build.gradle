@@ -44,4 +44,5 @@ dependencies {
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.springframework.restdocs:spring-restdocs-mockmvc:1.2.1.RELEASE"
+	testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
 }

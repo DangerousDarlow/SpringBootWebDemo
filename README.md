@@ -60,3 +60,32 @@ class IsTimeOfApproximatelyNow : BaseMatcher<String>() {
     }
 }
 ```
+
+## Marshalling
+
+Requests and responses of arbitrary complexity can be used by marshalling. JSON encoding is commonly used because it's human readable and straight forward. A data class can be used and must be able to be instantiated with no arguments which in Kotlin is easiest achieved by defaulting all values.
+
+```kotlin
+data class TimeInZonesRequest(val timeZones: List<String> = emptyList())
+```
+
+A handler for the post request is added using the annotation `@PostMapping`. The request body is mapped to a handler parameter using the annotation `@RequestBody`. That's all there is to it. Marshalling will convert between JSON and data class instances.
+
+```kotlin
+@PostMapping("/zones")
+fun postTimeInZones(@RequestBody() request: TimeInZonesRequest): TimeInZonesResponse {
+    return TimeInZonesResponse(times)
+}
+```
+
+Testing with a spring boot test is similar to before except the body must be specified. An `Autowired` ObjectMapper can be used to serialise a data class instance to JSON.
+
+```kotlin
+mvc.perform(post("/time/zones")
+    .contentType(APPLICATION_JSON)
+    .content(objectMapper.writeValueAsString(request)))
+    .andExpect(status().isOk)
+    .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
+    .andExpect(jsonPath("times[0].timeZone", equalTo(londonZone)))
+    .andExpect(jsonPath("times[1].timeZone", equalTo(utcZone)))
+```
