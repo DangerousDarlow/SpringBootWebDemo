@@ -51,7 +51,7 @@ class TimeControllerWebTest {
 }
 ```
 
-The test uses mock mvc to test the web api. The content returned in verified by a custom matcher derived from hamcrest BaseMatcher.
+The test uses mock mvc to test the web api. The content returned is verified by a custom matcher derived from hamcrest BaseMatcher.
 
 ```kotlin
 class IsTimeOfApproximatelyNow : BaseMatcher<String>() {
