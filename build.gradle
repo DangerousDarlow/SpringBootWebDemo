@@ -43,4 +43,5 @@ dependencies {
 	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.springframework.restdocs:spring-restdocs-mockmvc:1.2.1.RELEASE"
 }

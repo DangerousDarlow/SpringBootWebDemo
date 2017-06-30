@@ -28,3 +28,35 @@ Run the application noting the port number in the output `Tomcat started on port
 The application Postman can be used to test the API. It can be downloaded from https://www.getpostman.com/. Start postman and send a GET request to `localhost:8080/time`. Local time will be returned as a string.
 
 ![get time](https://github.com/DangerousDarlow/SpringBootWebDemo/blob/master/screenshots/postman-get-time.png)
+
+## Testing the controller
+
+The controller can be unit tested but this would not verify the HTTP request / response wiring and marshalling that spring boot does. The solution is to use a spring boot test which starts the application and runs tests against it.
+
+```kotlin
+@AutoConfigureMockMvc
+@RunWith(SpringRunner::class)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+class TimeControllerWebTest {
+    @Autowired
+    lateinit var mvc: MockMvc
+
+    @Test
+    fun `Time endpoint returns current time in plain text`() {
+        mvc.perform(get("/time"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
+            .andExpect(content().string(IsTimeOfApproximatelyNow()))
+    }
+}
+```
+
+The test uses mock mvc to test the web api. The content returned in verified by a custom matcher derived from hamcrest BaseMatcher.
+
+```kotlin
+class IsTimeOfApproximatelyNow : BaseMatcher<String>() {
+    override fun matches(item: Any?): Boolean {
+        stuff
+    }
+}
+```

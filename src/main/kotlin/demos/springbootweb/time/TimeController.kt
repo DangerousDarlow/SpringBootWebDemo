@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
+import java.time.OffsetTime
 import java.time.format.DateTimeFormatter
 
 @RestController
@@ -11,6 +12,6 @@ import java.time.format.DateTimeFormatter
 class TimeController {
     @GetMapping
     fun getTime(): String {
-        return OffsetDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)
+        return OffsetTime.now().format(DateTimeFormatter.ISO_OFFSET_TIME)
     }
 }
