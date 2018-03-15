@@ -5,21 +5,20 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.Instant
-import java.time.OffsetTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("time")
-class TimeController {
+class TimeController(val nowProvider: NowProvider) {
 
     @GetMapping
-    fun getTime(): String {
-        return OffsetTime.now().format(DateTimeFormatter.ISO_OFFSET_TIME)
-    }
+    fun getTime() = ZonedDateTime
+            .ofInstant(nowProvider.now(), ZoneId.of("US/Central"))
+            .format(DateTimeFormatter.ISO_DATE_TIME)!!
 
+    // Spring knows how to serialise objects to and from JSON (and other formats)
     @PostMapping("/zones")
     fun postTimeInZones(@RequestBody() request: TimeInZonesRequest): TimeInZonesResponse {
         val times = mutableListOf<LocalTimeInZone>()
@@ -29,7 +28,7 @@ class TimeController {
             times.add(LocalTimeInZone(
                 timeZone = zone.id,
                 localTime = ZonedDateTime
-                    .ofInstant(Instant.now(), zone)
+                    .ofInstant(nowProvider.now(), zone)
                     .toLocalTime()
                     .format(DateTimeFormatter.ISO_LOCAL_TIME)))
         }

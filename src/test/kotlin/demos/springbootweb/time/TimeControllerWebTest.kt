@@ -20,12 +20,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Duration
-import java.time.OffsetTime
+import java.time.ZonedDateTime
 
 @AutoConfigureMockMvc
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class TimeControllerWebTest {
+
     @Autowired
     lateinit var mvc: MockMvc
 
@@ -69,8 +70,8 @@ class IsTimeOfApproximatelyNow : BaseMatcher<String>() {
         if (item.isNullOrEmpty())
             return false
 
-        val itemAsTime = OffsetTime.parse(item)
-        val differenceToNow = Duration.between(itemAsTime, OffsetTime.now())
+        val itemAsTime = ZonedDateTime.parse(item)
+        val differenceToNow = Duration.between(itemAsTime, ZonedDateTime.now())
         return differenceToNow < Duration.ofMinutes(1)
     }
 }
