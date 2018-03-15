@@ -1,6 +1,5 @@
 package demos.springbootweb.time
 
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,6 +14,7 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("time")
 class TimeController {
+
     @GetMapping
     fun getTime(): String {
         return OffsetTime.now().format(DateTimeFormatter.ISO_OFFSET_TIME)

@@ -41,7 +41,7 @@ class TimeControllerWebTest {
     }
 
     @Test
-    fun `Time for zones endpoint returns local time for requested zones in json response`() {
+    fun `Zones endpoint returns local time for requested zones in json response`() {
         val londonZone = "Europe/London"
         val utcZone = "UTC"
 
