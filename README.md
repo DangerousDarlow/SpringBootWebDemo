@@ -8,6 +8,26 @@ This project has been created to demonstrate using Spring Boot to create an appl
  
 ![initializr](https://github.com/DangerousDarlow/SpringBootWebDemo/blob/master/screenshots/initializr.png)
 
+## Build & Run
+
+Build the demonstration application using powershell
+
+```powershell
+.\gradlew build
+```
+
+Run the application using
+
+```powershell
+java -jar .\build\libs\SpringBootWebDemo-0.0.1-SNAPSHOT.jar
+```
+
+The application has started when you see the following
+
+```powershell
+Started SpringbootwebApplicationKt in 3.521 seconds (JVM running for 4.001)
+```
+
 ## Controller
 
 The annotation `@RestController` is applied to a class to map web requests to it's handler methods. The annotation `@GetMapping` is applied to a method to map a GET request to that handler.
