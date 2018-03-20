@@ -1,6 +1,6 @@
 # Spring Boot Web Demo
 
-This project has been created to demonstrate using spring boot to create an application with a REST API. The starting point was the spring initializr website https://start.spring.io where the following options were selected
+This project has been created to demonstrate using Spring Boot to create an application with a web API. The starting point was the spring initializr website https://start.spring.io where the following options were selected
  * Gradle Project
  * Kotlin
  * Spring Boot version: 2
@@ -10,28 +10,54 @@ This project has been created to demonstrate using spring boot to create an appl
 
 ## Controller
 
-The annotation `@RestController` is applied to a class to map web requests to it's handler methods. The annotation `@GetMapping` is applied to a method to map an HTTP GET request to that handler.
+The annotation `@RestController` is applied to a class to map web requests to it's handler methods. The annotation `@GetMapping` is applied to a method to map a GET request to that handler.
 
 ```kotlin
 @RestController
 @RequestMapping("time")
-class TimeController {
+class TimeController(val nowProvider: NowProvider) {
+
     @GetMapping
-    fun getTime(): String {
-        return OffsetDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME)
-    }
+    fun getTime() = ZonedDateTime
+            .ofInstant(nowProvider.now(), ZoneId.of("US/Central"))
+            .format(DateTimeFormatter.ISO_DATE_TIME)!!
 }
 ```
 
 Run the application noting the port number in the output `Tomcat started on port(s): 8080 (http)`.
 
-The application Postman can be used to test the API. It can be downloaded from https://www.getpostman.com/. Start postman and send a GET request to `localhost:8080/time`. Local time will be returned as a string.
+The application Postman can be used to test the API. It can be downloaded from https://www.getpostman.com/. Start postman and send a GET request to `localhost:8080/time`. US/Central time will be returned as a string.
 
 ![get time](https://github.com/DangerousDarlow/SpringBootWebDemo/blob/master/screenshots/postman-get-time.png)
 
+## Dependency Injection
+
+Dependency injection is really straight forward using Spring. Annotating a class with @Component makes the class a bean. When the Spring application context loads components are registered and made available for injection.
+
+```kotlin
+@Component
+class RealNowProvider : NowProvider {
+    override fun now() = Instant.now()!!
+}
+```
+
+To inject into a constructor add a parameter of the class / interface type and Spring will do the rest.
+
+```kotlin
+class TimeController(val nowProvider: NowProvider) {
+```
+
+Dependency injection isn't just for constructors. Properties annotated with @Autowired will be injected.
+
+```kotlin
+class TimeControllerWebTest {
+    @Autowired
+    lateinit var mvc: MockMvc
+```
+
 ## Testing the controller
 
-The controller can be unit tested but this would not verify the HTTP request / response wiring and marshalling that spring boot does. The solution is to use a spring boot test which starts the application and runs tests against it.
+The controller can be unit tested but this would not verify the HTTP request / response wiring and marshalling that Spring Boot does. The solution is to annotate a class with @SpringBootTest which starts the application and runs tests against it.
 
 ```kotlin
 @AutoConfigureMockMvc
@@ -51,12 +77,37 @@ class TimeControllerWebTest {
 }
 ```
 
-The test uses mock mvc to test the web api. The content returned is verified by a custom matcher derived from hamcrest BaseMatcher.
+The test uses mock mvc to test the web api. The content returned is verified by a custom matcher derived from Hamcrest BaseMatcher.
 
 ```kotlin
 class IsTimeOfApproximatelyNow : BaseMatcher<String>() {
     override fun matches(item: Any?): Boolean {
         stuff
+    }
+}
+```
+
+The Mockito mocking framework makes isolating classes from dependencies straight forward. Dependencies to be mocked are annotated with @Mock and the class they are to be injected into with @InjectMocks.
+
+```kotlin
+@RunWith(MockitoJUnitRunner::class)
+class TimeControllerTest {
+
+    @Mock
+    lateinit var nowProvider: NowProvider
+
+    @InjectMocks
+    lateinit var controller: TimeController
+
+    @Test
+    fun `getTime returns current US central time`() {
+        whenever(nowProvider.now()).thenReturn(
+                LocalDateTime.parse("2018-03-15T22:45").toInstant(ZoneOffset.UTC)
+        )
+
+        assertThat(controller.getTime()).isEqualTo("2018-03-15T17:45:00-05:00[US/Central]")
+
+        verify(nowProvider, times(1)).now()
     }
 }
 ```
@@ -74,11 +125,12 @@ A handler for the post request is added using the annotation `@PostMapping`. The
 ```kotlin
 @PostMapping("/zones")
 fun postTimeInZones(@RequestBody() request: TimeInZonesRequest): TimeInZonesResponse {
+    val times = mutableListOf<LocalTimeInZone>()
     return TimeInZonesResponse(times)
 }
 ```
 
-Testing with a spring boot test is similar to before except the body must be specified. An `Autowired` ObjectMapper can be used to serialise a data class instance to JSON.
+Testing with a Spring Boot test is similar to before except the body must be specified. An `Autowired` ObjectMapper can be used to serialise a data class instance to JSON.
 
 ```kotlin
 mvc.perform(post("/time/zones")
